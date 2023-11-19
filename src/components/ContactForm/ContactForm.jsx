@@ -1,10 +1,28 @@
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts } from 'redux/selectors';
+import { addContact } from 'redux/contactsSlice';
+
 import css from "./contactForm.module.css"
 
-const ContactForm = ({name, number, change, submit }) => {
-    return <form className={css.formInput } onSubmit={submit}>
+const ContactForm = () => {
+    const dispatch = useDispatch();
+    const contacts = useSelector(getContacts);
+
+    const handleSubmitForm = (values, action) => {
+        const isInContacts =
+            contacts.some(({ name }) => name.toLowerCase() === values.name.toLowerCase()
+        );
+
+        if (isInContacts) {
+            return alert(`${values.name} is already in contacts.`);
+        }
+        
+        dispatch(addContact(values));
+        action.resetForm();
+    };
+
+    return <form className={css.formInput } onSubmit={handleSubmitForm}>
         <input
-                value ={name}
-                onChange={change}
                 type="text"
                 name="name"
                 pattern="^[a-zA-Zа-яА-Я]+(([' \\-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
@@ -14,8 +32,6 @@ const ContactForm = ({name, number, change, submit }) => {
             />
         <br />      
         <input
-                value={number}
-                onChange={change}
                 type="tel"
                 name="number"
                 pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
